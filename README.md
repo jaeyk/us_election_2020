@@ -13,7 +13,7 @@ https://github.com/tonmcg/US_County_Level_Election_Results_08-20
 ## Source code 
 
 * For R users: https://github.com/jaeyk/us_election_2020/blob/main/src/data_wranlging.Rmd
-* For Python users: https://github.com/jaeyk/us_election_2020/blob/main/src/data_wranlging.ipynb
+* For Python users: https://github.com/jaeyk/us_election_2020/blob/main/src/data_wrangling.ipynb
 
 ## Final output 
 
