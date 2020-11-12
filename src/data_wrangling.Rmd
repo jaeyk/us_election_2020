@@ -44,7 +44,10 @@ Fix this issue by renaming the column names of `election_20`.
 # Check the column names 
 names(election_08_16)
 names(election_20)
+```
 
+
+```{r}
 # Rename common columns
 election_20 <- election_20 %>%
     rename("fips_code" = "county_fips",
@@ -67,7 +70,7 @@ Caveat 2: Also, 64 county names in the two dataframes didn't match.
 
 ```{r}
 # The number of differently named counties 
-setdiff(election_08_16$county, election_20$county)
+setdiff(election_08_16$county, election_20$county) %>% length()
 ```
 
 
@@ -122,6 +125,10 @@ augmented <- bind_cols(selected,
 )
   
 head(augmented)
+```
+
+```{r}
+dim(augmented)
 ```
 
 # Export 
