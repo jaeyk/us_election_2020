@@ -510,6 +510,9 @@ intersect(names(election_08_16), names(election_20))</code></pre>
 <pre><code>## [1] 1845</code></pre>
 <pre class="r"><code>length(unique(election_20$county))</code></pre>
 <pre><code>## [1] 1848</code></pre>
+<pre class="r"><code>unique(election_20$county) %&gt;% tail()</code></pre>
+<pre><code>## [1] &quot;Niobrara County&quot;   &quot;Sublette County&quot;   &quot;Sweetwater County&quot;
+## [4] &quot;Uinta County&quot;      &quot;Washakie County&quot;   &quot;Weston County&quot;</code></pre>
 <p>Caveat 2: Also, 64 county names in the two dataframes didn’t match.</p>
 <pre class="r"><code># The number of differently named counties 
 setdiff(election_08_16$county, election_20$county) %&gt;% length()</code></pre>

@@ -66,6 +66,11 @@ length(unique(election_08_16$county))
 length(unique(election_20$county))
 ```
 
+```{r}
+unique(election_20$county) %>% tail()
+```
+
+
 Caveat 2: Also, 64 county names in the two dataframes didn't match.
 
 ```{r}
