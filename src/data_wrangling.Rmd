@@ -1,0 +1,132 @@
+---
+title: "Wrangling presidential election data"
+author: "Jae Yeon Kim"
+date: format(Sys.Date())
+output: html_document
+---
+
+# Load packages 
+
+```{r}
+
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(
+    tidyverse, 
+    here
+)
+
+```
+
+# Load data 
+
+Huge thanks to [`tonmcg`](https://github.com/tonmcg) for putting this data together: https://github.com/tonmcg/US_County_Level_Election_Results_08-20
+
+```{r}
+election_08_16 <- read_csv("https://github.com/tonmcg/US_County_Level_Election_Results_08-20/raw/master/US_County_Level_Presidential_Results_08-16.csv")
+
+election_20 <- read_csv("https://github.com/tonmcg/US_County_Level_Election_Results_08-20/raw/master/2020_US_County_Level_Presidential_Results.csv")
+```
+
+# Wrangle data 
+
+## Find common columns
+
+No common columns because of the column name inconsistency. 
+
+```{r}
+intersect(names(election_08_16), names(election_20))
+```
+
+Fix this issue by renaming the column names of `election_20`.
+
+```{r}
+# Check the column names 
+names(election_08_16)
+names(election_20)
+
+# Rename common columns
+election_20 <- election_20 %>%
+    rename("fips_code" = "county_fips",
+           "county" = "county_name")
+
+# Check the common columns
+intersect(names(election_08_16), names(election_20))
+```
+
+## Join the two datasets 
+
+Caveat 1: Note that we have three more counties in the `election_20` dataframe than the `election_08_16` dataframe.
+
+```{r}
+length(unique(election_08_16$county))
+length(unique(election_20$county))
+```
+
+Caveat 2: Also, 64 county names in the two dataframes didn't match.
+
+```{r}
+# The number of differently named counties 
+setdiff(election_08_16$county, election_20$county)
+```
+
+
+```{r}
+# Sort these counties 
+setdiff(election_08_16$county, election_20$county) %>% sort() %>% head()
+```
+
+- Change the column names of the `election_20` in the same style of `election_08_16` dataframe. 
+
+```{r}
+
+election_20 <- election_20 %>%
+    rename("dem_2020" = "votes_dem",
+           "gop_2020" = "votes_gop",
+           "total_2020" = "total_votes") %>%
+    select(!matches("per_|diff"))
+
+```
+
+Since we're trying to create a panel data, I join the two datasets (x1, x2) based on x1. 
+
+```{r}
+joined <- election_08_16 %>% left_join(election_20) %>%
+    # Also move the geo-related columns to the front 
+    relocate(fips_code, county, state_name)
+```
+
+## Select
+
+Let's focus on the 2016 and 2020 presidential election results. 
+
+```{r}
+selected <- joined %>%
+    select(c("fips_code", "county", "state_name") | matches("2016|2020"))
+```
+
+## Mutate 
+
+Calculate party vote share in each election and add that information to the original dataframe.
+
+```{r}
+
+augmented <- bind_cols(selected, 
+          selected %>%
+    transmute(dem_2016_share = dem_2016/total_2016, 
+           gop_2016_share = gop_2016/total_2016, 
+           dem_2020_share = dem_2020/total_2020, 
+           gop_2020_share = gop_2020/total_2020) %>%
+    transmute(dem_diff = (dem_2020_share - dem_2016_share) %>% round(4), 
+              gop_diff = (gop_2020_share - gop_2016_share) %>% round(4))
+)
+  
+head(augmented)
+```
+
+# Export 
+
+```{r}
+write_csv(augmented, here("outputs", "wrangled.csv"))
+```
+
